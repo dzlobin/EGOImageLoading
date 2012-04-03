@@ -27,15 +27,14 @@
 #import "EGOImageLoader.h"
 #import "EGOImageLoadConnection.h"
 #import "EGOCache.h"
-#import "NSString+MD5.h"
 
 static EGOImageLoader* __imageLoader;
 
 inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	if(style) {
-		return [NSString stringWithFormat:@"EGOImageLoader-%u-%u", [[url description] MD5Hash], [style MD5Hash]];
+		return [NSString stringWithFormat:@"EGOImageLoader-%u-%u", url.description, style];
 	} else {
-		return [NSString stringWithFormat:@"EGOImageLoader-%u", [[url description] MD5Hash]];
+		return [NSString stringWithFormat:@"EGOImageLoader-%u", url.description];
 	}
 }
 
