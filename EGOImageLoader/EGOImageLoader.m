@@ -33,9 +33,9 @@ static EGOImageLoader* __imageLoader;
 
 inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	if(style) {
-		return [NSString stringWithFormat:@"EGOImageLoader-%@-%@", [[url description] md5Hash], [style md5Hash]];
+		return [NSString stringWithFormat:@"EGOImageLoader-%u-%u", [[url description] MD5Hash], [style MD5Hash]];
 	} else {
-		return [NSString stringWithFormat:@"EGOImageLoader-%@", [[url description] md5Hash]];
+		return [NSString stringWithFormat:@"EGOImageLoader-%u", [[url description] MD5Hash]];
 	}
 }
 
@@ -61,13 +61,13 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 @implementation EGOImageLoader
 @synthesize currentConnections=_currentConnections;
 
++ (void)initialize {
+	if (self == [EGOImageLoader class]) {
+        __imageLoader = [[self class] new];
+    }
+}
+
 + (EGOImageLoader*)sharedImageLoader {
-	@synchronized(self) {
-		if(!__imageLoader) {
-			__imageLoader = [[[self class] alloc] init];
-		}
-	}
-	
 	return __imageLoader;
 }
 
@@ -87,7 +87,7 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 }
 
 - (EGOImageLoadConnection*)loadingConnectionForURL:(NSURL*)aURL {
-	EGOImageLoadConnection* connection = [[self.currentConnections objectForKey:aURL] retain];
+	EGOImageLoadConnection* connection = [[currentConnections objectForKey:aURL] retain];
 	if(!connection) return nil;
 	else return [connection autorelease];
 }

@@ -47,6 +47,6 @@
 
 @protocol EGOImageViewDelegate<NSObject>
 @optional
-- (void)imageViewLoadedImage:(EGOImageView*)imageView;
+- (void)imageViewLoadedImage:(EGOImageView*)imageView loadedFromCache:(BOOL)loadedFromCache;
 - (void)imageViewFailedToLoadImage:(EGOImageView*)imageView error:(NSError*)error;
 @end

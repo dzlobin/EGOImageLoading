@@ -50,9 +50,9 @@
 }
 
 - (void)start {
-	NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:self.imageURL
-																cachePolicy:NSURLRequestReturnCacheDataElseLoad
-															timeoutInterval:self.timeoutInterval];
+	NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:_imageURL
+																cachePolicy:NSURLRequestReloadRevalidatingCacheData
+															timeoutInterval:_timeoutInterval];
 	[request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];  
 	_connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:YES];
 	[request release];
@@ -79,16 +79,16 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	if(connection != _connection) return;
 
-	if([self.delegate respondsToSelector:@selector(imageLoadConnectionDidFinishLoading:)]) {
-		[self.delegate imageLoadConnectionDidFinishLoading:self];
+	if([_delegate respondsToSelector:@selector(imageLoadConnectionDidFinishLoading:)]) {
+		[_delegate imageLoadConnectionDidFinishLoading:self];
 	}
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	if(connection != _connection) return;
 
-	if([self.delegate respondsToSelector:@selector(imageLoadConnection:didFailWithError:)]) {
-		[self.delegate imageLoadConnection:self didFailWithError:error];
+	if([_delegate respondsToSelector:@selector(imageLoadConnection:didFailWithError:)]) {
+		[_delegate imageLoadConnection:self didFailWithError:error];
 	}
 }
 
