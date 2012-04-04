@@ -32,9 +32,9 @@ static EGOImageLoader* __imageLoader;
 
 inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	if(style) {
-		return [NSString stringWithFormat:@"EGOImageLoader-%u-%u", url.description, style];
+		return [NSString stringWithFormat:@"EGOImageLoader-%u-%u", url.description.hash, style.hash];
 	} else {
-		return [NSString stringWithFormat:@"EGOImageLoader-%u", url.description];
+		return [NSString stringWithFormat:@"EGOImageLoader-%u", url.description.hash];
 	}
 }
 
