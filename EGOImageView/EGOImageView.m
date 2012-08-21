@@ -43,6 +43,13 @@
 	return self;
 }
 
+- (void)setPlaceholderImage:(UIImage *)anImage {
+    placeholderImage = anImage;
+    if(!imageURL) {
+        self.image = placeholderImage;
+    }
+}
+
 - (void)setImageURL:(NSURL *)aURL {
     EGOImageLoader *sharedImageLoader = [EGOImageLoader sharedImageLoader];
 	if(imageURL) {
