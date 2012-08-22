@@ -62,7 +62,7 @@
 	
 	if(!aURL) {
 		self.image = placeholderImage;
-		imageURL = nil;
+//		self.imageURL = nil;
 		return;
 	} else {
 		imageURL = [aURL retain];
