@@ -44,6 +44,8 @@
 }
 
 - (void)setPlaceholderImage:(UIImage *)anImage {
+    [anImage retain]; // must retain before releasing old, in case placeholderImage is same
+    [placeholderImage release];
     placeholderImage = anImage;
     if(!imageURL) {
         self.image = placeholderImage;
