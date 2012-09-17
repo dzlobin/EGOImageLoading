@@ -59,6 +59,8 @@
 @end
 
 @protocol EGOImageLoadConnectionDelegate<NSObject>
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
 - (void)imageLoadConnectionDidFinishLoading:(EGOImageLoadConnection *)connection;
 - (void)imageLoadConnection:(EGOImageLoadConnection *)connection didFailWithError:(NSError *)error;	
 @end

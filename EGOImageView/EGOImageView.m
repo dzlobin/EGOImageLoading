@@ -39,8 +39,11 @@
 		self.placeholderImage = anImage;
 		self.delegate = aDelegate;
 	}
+    
+    self.bytesReceived = 0;
+    self.expectedBytes = 0;
 	
-	return self;
+    return self;
 }
 
 - (void)setPlaceholderImage:(UIImage *)anImage {
@@ -53,6 +56,9 @@
 }
 
 - (void)setImageURL:(NSURL *)aURL {
+    self.bytesReceived = 0;
+    self.expectedBytes = 0;
+    
     EGOImageLoader *sharedImageLoader = [EGOImageLoader sharedImageLoader];
 	if(imageURL) {
 		[sharedImageLoader removeObserver:self forURL:imageURL];
@@ -115,6 +121,32 @@
 	[sharedImageLoader removeObserver:self forURL:imageURL];
 }
 
+- (void)beginImageDownload:(NSNotification *)notification
+{
+    if ([[notification userInfo] objectForKey:@"expectedLength"]) 
+        self.expectedBytes = [[[notification userInfo] objectForKey:@"expectedLength"] longLongValue];
+    
+}
+
+- (void)updateImageDownloadProgress:(NSNotification *)notification
+{
+    float progress = 0;
+    long long receivedLen;
+    
+    if ([[notification userInfo] objectForKey:@"progress"]) {
+        receivedLen = [[[notification userInfo] objectForKey:@"progress"] longLongValue];
+        
+        self.bytesReceived = (self.bytesReceived + receivedLen);
+        if(self.expectedBytes != NSURLResponseUnknownLength)
+            progress = ((self.bytesReceived/(float)self.expectedBytes)*100)/100;
+
+        // pass progress along to delegate
+        NSLog(@"Recieved Progress %f for imageView %ui", progress, self.hash);
+    }
+}
+
+
+
 - (void)imageLoaderDidLoad:(NSNotification*)notification {
     NSDictionary *userInfo = notification.userInfo;
 	if(![[userInfo objectForKey:@"imageURL"] isEqual:imageURL]) return;
@@ -125,7 +157,9 @@
 	
 	if([delegate respondsToSelector:@selector(imageViewLoadedImage:loadedFromCache:)]) {
 		[delegate imageViewLoadedImage:self loadedFromCache:NO];
-	}	
+	}
+    self.bytesReceived = 0;
+    self.expectedBytes = 0;
 }
 
 - (void)imageLoaderDidFailToLoad:(NSNotification*)notification {
@@ -135,6 +169,8 @@
 	if([delegate respondsToSelector:@selector(imageViewFailedToLoadImage:error:)]) {
 		[delegate imageViewFailedToLoadImage:self error:[userInfo objectForKey:@"error"]];
 	}
+    self.bytesReceived = 0;
+    self.expectedBytes = 0;
 }
 
 #pragma mark -

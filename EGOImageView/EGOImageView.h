@@ -40,9 +40,16 @@
 
 - (void)cancelImageLoad;
 
+- (void)updateImageDownloadProgress:(NSNotification *)notification; //a notification is sent by EGOImageLoader containing the size of the latest recieved data, used to measure download progress
+- (void)beginImageDownload:(NSNotification *)notification; //a notification is sent by EGOImageLoader containing the total size of the download data, used to measure download progress
+
+
 @property(nonatomic,retain) NSURL* imageURL;
 @property(nonatomic,retain) UIImage* placeholderImage;
 @property(nonatomic,assign) id<EGOImageViewDelegate> delegate;
+
+@property long long expectedBytes; // used to measure file upload progress, represents the total file size
+@property long long bytesReceived; // also used to measure file upload progress, represents the running total bytes recieved for a particular upload
 @end
 
 @protocol EGOImageViewDelegate<NSObject>

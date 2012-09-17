@@ -51,6 +51,9 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	#define kImageNotificationLoadFailed(s) [@"kEGOImageLoaderNotificationLoadFailed-" stringByAppendingString:keyForURL(s, nil)]
 #endif
 
+#define kImageNotificationUploadProgress @"imageUploadProgress"
+#define kImageNotificationUploadStart @"imageUploadStart"
+
 @interface EGOImageLoader ()
 #if __EGOIL_USE_BLOCKS
 - (void)handleCompletionsForConnection:(EGOImageLoadConnection*)connection image:(UIImage*)image error:(NSError*)error;
@@ -81,7 +84,6 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 		dispatch_set_target_queue(priority, _operationQueue);
 		#endif
 	}
-	
 	return self;
 }
 
@@ -150,6 +152,14 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	
 	if([observer respondsToSelector:@selector(imageLoaderDidFailToLoad:)]) {
 		[[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(imageLoaderDidFailToLoad:) name:kImageNotificationLoadFailed(aURL) object:self];
+	}
+    
+	if([observer respondsToSelector:@selector(updateImageDownloadProgress:)]) {
+		[[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(updateImageDownloadProgress:) name:kImageNotificationUploadProgress object:self];
+	}
+    
+    if([observer respondsToSelector:@selector(beginImageDownload:)]) {
+		[[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(beginImageDownload:) name:kImageNotificationUploadStart object:self];
 	}
 
 	[self loadImageForURL:aURL];
@@ -266,9 +276,6 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 		[self handleCompletionsForConnection:connection image:anImage error:nil];
 		#endif
 	}
-	
-	
-
 	[self cleanUpConnection:connection];
 }
 
@@ -287,8 +294,20 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	#if __EGOIL_USE_BLOCKS
 	[self handleCompletionsForConnection:connection image:nil error:error];
 	#endif
-
 	[self cleanUpConnection:connection];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    //add the number of bytes recieved to the current total and then use the expected total length to calculate progress
+    long long receivedLen = [data length];
+    NSDictionary *progressInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithLongLong:receivedLen], @"progress", nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kImageNotificationUploadProgress object:self userInfo:progressInfo];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    NSDictionary *progressInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithLongLong:[response expectedContentLength]], @"expectedLength", nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kImageNotificationUploadStart object:self userInfo:progressInfo];
 }
 
 #if __EGOIL_USE_BLOCKS
@@ -331,6 +350,7 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	self.currentConnections = nil;
 	[currentConnections release], currentConnections = nil;
 	[connectionsLock release], connectionsLock = nil;
+    
 	[super dealloc];
 }
 

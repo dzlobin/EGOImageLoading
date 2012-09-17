@@ -27,6 +27,7 @@
 #import "EGOImageLoadConnection.h"
 
 
+
 @implementation EGOImageLoadConnection
 @synthesize imageURL=_imageURL, response=_response, delegate=_delegate, timeoutInterval=_timeoutInterval;
 
@@ -74,11 +75,19 @@
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
 	if(connection != _connection) return;
 	[_responseData appendData:data];
+    
+    if([_delegate respondsToSelector:@selector(connection:didReceiveData:)]) {
+		[_delegate connection:connection didReceiveData:data];
+	}
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	if(connection != _connection) return;
 	self.response = response;
+    
+    if([_delegate respondsToSelector:@selector(connection:didReceiveResponse:)]) {
+		[_delegate connection:connection didReceiveResponse:response];
+	}
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
