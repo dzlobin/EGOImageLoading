@@ -130,7 +130,7 @@
 
 - (void)updateImageDownloadProgress:(NSNotification *)notification
 {
-    float progress = 0;
+    float progress;
     long long receivedLen;
     
     if ([[notification userInfo] objectForKey:@"progress"]) {
