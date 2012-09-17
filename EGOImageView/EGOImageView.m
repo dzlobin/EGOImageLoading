@@ -141,7 +141,6 @@
             progress = ((self.bytesReceived/(float)self.expectedBytes)*100)/100;
 
         // pass progress along to delegate
-        NSLog(@"Recieved Progress %f for imageView %ui", progress, self.hash);
     }
 }
 
