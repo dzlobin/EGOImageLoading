@@ -137,10 +137,14 @@
         receivedLen = [[[notification userInfo] objectForKey:@"progress"] longLongValue];
         
         self.bytesReceived = (self.bytesReceived + receivedLen);
-        if(self.expectedBytes != NSURLResponseUnknownLength)
+        if(self.expectedBytes != NSURLResponseUnknownLength) {
             progress = ((self.bytesReceived/(float)self.expectedBytes)*100)/100;
-
-        // pass progress along to delegate
+                
+            if (progressDelegate && [progressDelegate respondsToSelector:@selector(didUpdateDownloadProgress:)]) {
+                [progressDelegate didUpdateDownloadProgress:progress];
+            }
+        }
+        
     }
 }
 

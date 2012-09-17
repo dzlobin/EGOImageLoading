@@ -28,11 +28,14 @@
 #import "EGOImageLoader.h"
 
 @protocol EGOImageViewDelegate;
+@protocol EGOImageViewDownloadProgressDelegate;
+
 @interface EGOImageView : UIImageView<EGOImageLoaderObserver> {
 @private
 	NSURL* imageURL;
 	UIImage* placeholderImage;
 	id<EGOImageViewDelegate> delegate;
+    id<EGOImageViewDownloadProgressDelegate> progressDelegate;
 }
 
 - (id)initWithPlaceholderImage:(UIImage*)anImage; // delegate:nil
@@ -47,6 +50,7 @@
 @property(nonatomic,retain) NSURL* imageURL;
 @property(nonatomic,retain) UIImage* placeholderImage;
 @property(nonatomic,assign) id<EGOImageViewDelegate> delegate;
+@property(nonatomic,assign) id<EGOImageViewDownloadProgressDelegate> progressDelegate;
 
 @property long long expectedBytes; // used to measure file upload progress, represents the total file size
 @property long long bytesReceived; // also used to measure file upload progress, represents the running total bytes recieved for a particular upload
@@ -56,4 +60,9 @@
 @optional
 - (void)imageViewLoadedImage:(EGOImageView*)imageView loadedFromCache:(BOOL)loadedFromCache;
 - (void)imageViewFailedToLoadImage:(EGOImageView*)imageView error:(NSError*)error;
+@end
+
+@protocol EGOImageViewDownloadProgressDelegate<NSObject>
+@optional
+- (void)didUpdateDownloadProgress:(float)progress;
 @end
