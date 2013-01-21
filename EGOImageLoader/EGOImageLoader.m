@@ -128,7 +128,8 @@ inline static NSString* keyForURL(NSURL* url, NSString* style) {
 	
 	if((connection = [self loadingConnectionForURL:aURL])) {
 		return connection;
-	} else {
+	}
+    else {
 		connection = [[EGOImageLoadConnection alloc] initWithImageURL:aURL delegate:self];
 	
 		[connectionsLock lock];

@@ -59,7 +59,7 @@
     [_connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
     [_connection start];
     
-    NSLog(@"%@", request);
+    NSLog(@"Starting image download %@", request);
     
 	[request release];
 }

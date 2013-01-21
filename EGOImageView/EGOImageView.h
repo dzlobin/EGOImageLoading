@@ -65,4 +65,6 @@
 @protocol EGOImageViewDownloadProgressDelegate<NSObject>
 @optional
 - (void)didUpdateDownloadProgress:(float)progress;
+- (void)didBeginImageDownload;
+- (void)didFinishImageDownload;
 @end

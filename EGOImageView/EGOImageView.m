@@ -28,7 +28,7 @@
 #import "EGOImageLoader.h"
 
 @implementation EGOImageView
-@synthesize imageURL, placeholderImage, delegate;
+@synthesize imageURL, placeholderImage, delegate, progressDelegate;
 
 - (id)initWithPlaceholderImage:(UIImage*)anImage {
 	return [self initWithPlaceholderImage:anImage delegate:nil];	
@@ -78,7 +78,7 @@
     
     // new logic
     if ([sharedImageLoader hasLoadedImageURL:aURL]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(){
             UIImage *anImage = [sharedImageLoader imageForURL:aURL shouldLoadWithObserver:self];
             if (anImage == nil) {
                 // if image expired between hasLoadedImageURL check, and imageForURL call
@@ -119,6 +119,9 @@
     EGOImageLoader *sharedImageLoader = [EGOImageLoader sharedImageLoader];
 	[sharedImageLoader cancelLoadForURL:imageURL];
 	[sharedImageLoader removeObserver:self forURL:imageURL];
+    if (self.progressDelegate && [self.progressDelegate respondsToSelector:@selector(didFinishImageDownload)]) {
+        [self.progressDelegate didFinishImageDownload];
+    }
 }
 
 - (void)beginImageDownload:(NSNotification *)notification
@@ -126,6 +129,9 @@
     if ([[notification userInfo] objectForKey:@"expectedLength"]) 
         self.expectedBytes = [[[notification userInfo] objectForKey:@"expectedLength"] longLongValue];
     
+    if (self.progressDelegate && [self.progressDelegate respondsToSelector:@selector(startedDownloadingImage)]) {
+        [self.progressDelegate didBeginImageDownload];
+    }
 }
 
 - (void)updateImageDownloadProgress:(NSNotification *)notification
@@ -138,11 +144,16 @@
         
         self.bytesReceived = (self.bytesReceived + receivedLen);
         if(self.expectedBytes != NSURLResponseUnknownLength) {
-            progress = ((self.bytesReceived/(float)self.expectedBytes)*100)/100;
-                
-            if (progressDelegate && [progressDelegate respondsToSelector:@selector(didUpdateDownloadProgress:)]) {
-                [progressDelegate didUpdateDownloadProgress:progress];
+            progress = (self.bytesReceived/(float)self.expectedBytes);
+            NSLog(@"Progress is %f", progress);
+            if (self.bytesReceived > self.expectedBytes) {
+                NSLog(@"rec is %lli and exp is %lli", self.bytesReceived, self.expectedBytes);
+
             }
+            if (self.progressDelegate && [self.progressDelegate respondsToSelector:@selector(didUpdateDownloadProgress:)]) {
+                [self.progressDelegate didUpdateDownloadProgress:progress];
+            }
+            
         }
         
     }
@@ -174,6 +185,7 @@
 	}
     self.bytesReceived = 0;
     self.expectedBytes = 0;
+    
 }
 
 #pragma mark -
